@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Invocable action that links funding requests to the current meeting</description>
+        <name>Link_Funding_Requests</name>
+        <label>Link Funding Requests</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <actionName>gf8__Panel_Meeting__c.gf8__Link_Funding_Requests</actionName>
+        <actionType>quickAction</actionType>
+        <connector>
+            <targetReference>Reset_Meeting</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>contextId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>gf8__Panel_Meeting__c.gf8__Link_Funding_Requests</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <apiVersion>61.0</apiVersion>
+    <decisions>
+        <description>This decision is check to confirm if we should run the process for linking funding requests to the panel meeting</description>
+        <name>Link_Funding_Requests_to_Meeting</name>
+        <label>Link Funding Requests to Meeting</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>YES_LINK_FUNDING_REQUESTS</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Setup.gf8__Panel_Meeting_Management__c.gf8__Panel_Meeting_Trigger_Active__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Setup.gf8__Panel_Meeting_Management__c.gf8__Funding_Request_Status__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.gf8__Map_Funding_Requests__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Link_Funding_Requests</targetReference>
+            </connector>
+            <label>YES LINK FUNDING REQUESTS</label>
+        </rules>
+    </decisions>
+    <description>This process supports the mapping of funding requests to panel meetings</description>
+    <environments>Default</environments>
+    <interviewLabel>Panel Meeting Mapping Management (grantlFlex) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Panel Meeting Mapping Management (grantlFlex)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Reset the current meeting to allow for this process to run again</description>
+        <name>Reset_Meeting</name>
+        <label>Reset Meeting</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <inputAssignments>
+            <field>gf8__Map_Funding_Requests__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Link_Funding_Requests_to_Meeting</targetReference>
+        </connector>
+        <object>gf8__Panel_Meeting__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>

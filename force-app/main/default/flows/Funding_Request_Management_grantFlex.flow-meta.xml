@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <decisions>
+        <description>Check to see if we should be creating a funding allocation</description>
+        <name>Status_Match_Created_Fund_Allocation</name>
+        <label>Status Match Created Fund Allocation</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>YES_PROCESS_FUNDING_REQUEST</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Setup.gf8__Funding_Payment_Management__c.gf8__Process_Payment_Funding_Allocations__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Setup.gf8__Funding_Payment_Management__c.gf8__Funding_Request_Status__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Setup.gf8__Funding_Payment_Management__c.gf8__Funding_Request_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.gf8__Status__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.gf8__Status__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.gf8__Fund_Allocation_Created__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Funding_Allocation</targetReference>
+            </connector>
+            <label>YES PROCESS FUNDING REQUEST</label>
+        </rules>
+    </decisions>
+    <description>A management process for a funding request with most processes controlled via custom settings</description>
+    <environments>Default</environments>
+    <interviewLabel>Funding Request Management (grantFlex) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Funding Request Management (grantFlex)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Generate a funding allocation for this funding request</description>
+        <name>Create_Funding_Allocation</name>
+        <label>Create Funding Allocation</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <connector>
+            <targetReference>Confirm_Allocation_Created</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>gf8__Amount__c</field>
+            <value>
+                <elementReference>$Record.gf8__Awarded_Amount__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>gf8__Commitment__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>gf8__Date__c</field>
+            <value>
+                <elementReference>$Record.gf8__Awarded_Date__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>gf8__Funding_Request__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>gf8__General_Accounting_Unit__c</field>
+            <value>
+                <elementReference>$Record.gf8__General_Accounting_Unit__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>gf8__Status__c</field>
+            <value>
+                <stringValue>Ready to Post</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>gf8__Type__c</field>
+            <value>
+                <elementReference>$Setup.gf8__Funding_Request_Management__c.gf8__Allocation_Commitment_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>gf8__Funding_Allocation__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordUpdates>
+        <description>Update current record and confirm that allocation was created</description>
+        <name>Confirm_Allocation_Created</name>
+        <label>Confirm Allocation Created</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <inputAssignments>
+            <field>gf8__Fund_Allocation_Created__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Status_Match_Created_Fund_Allocation</targetReference>
+        </connector>
+        <object>gf8__Funding_Request__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>
